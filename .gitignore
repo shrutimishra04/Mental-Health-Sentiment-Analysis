@@ -1,0 +1,77 @@
+# -------------------------
+# Python cache & virtual env
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+ENV/
+
+# -------------------------
+# Jupyter Notebook artifacts
+# -------------------------
+.ipynb_checkpoints/
+
+# -------------------------
+# OS / Editor files
+# -------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# -------------------------
+# Large ML model files
+# -------------------------
+models/final_model/
+models/final_model_domain_adapted/
+models/*.bin
+models/*.safetensors
+models/*.h5
+models/*.pt
+models/*.pth
+
+# -------------------------
+# Serialized ML artifacts
+# -------------------------
+models/*.pkl
+models/*.joblib
+
+# -------------------------
+# Data files (keep repo clean)
+# -------------------------
+data/raw/
+data/processed/
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
+# -------------------------
+# FastAPI / Uvicorn cache
+# -------------------------
+api/__pycache__/
+api/model/__pycache__/
+
+# -------------------------
+# Temporary files
+# -------------------------
+*.tmp
+*.temp
+
+
+# =========================
+# Ignore model files inside api (IMPORTANT)
+# =========================
+api/model/
+api/model/**
+
+# HuggingFace / PyTorch model artifacts
+*.bin
+*.safetensors
+*.pt
+*.pth

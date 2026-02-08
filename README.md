@@ -1,8 +1,12 @@
-**Mental Health Sentiment Analysis**
+**Mental Health Sentiment Analysis (Hybrid ML + NLP System)**
 
-This project implements an end-to-end mental health sentiment analysis system using machine learning and deep learning techniques. The system classifies text into mental-health-related categories and assigns a confidence score and risk level to each prediction. The project is designed for academic and research purposes and demonstrates the full pipeline from data preprocessing to model deployment.
+This project implements an end-to-end mental health text analysis system designed for academic and research purposes. The system classifies user-provided text into mental health–related categories, estimates risk levels, and generates a supportive, rule-based chatbot response.
 
-Disclaimer: This project is intended strictly for educational and research use. It is not a diagnostic or clinical tool.
+The focus of this project is not only model accuracy, but also safety-aware deployment, combining machine learning with rule-based safeguards to reduce false escalation in sensitive mental health contexts.
+
+Disclaimer
+This project is intended strictly for educational and research use.
+It is not a diagnostic or clinical tool.
 
 **Project Objectives**
 
@@ -10,115 +14,148 @@ Analyze mental health–related text data
 
 Classify text into predefined mental health categories
 
-Provide confidence scores for predictions
+Assign confidence scores and risk levels
 
-Assign risk levels based on prediction confidence and category
+Reduce false positives using rule-based safety guards
 
-Demonstrate real-time inference using a backend API and frontend interface
+Provide a simple, supportive chatbot response
+
+Demonstrate a production-style ML + API pipeline
 
 **Mental Health Categories**
 
-The model predicts the following classes:
-
-depression
-
-anxiety
-
-stress
-
-suicidal
+The system predicts the following five classes:
 
 normal
 
-bipolar
+stress
 
-ptsd
+anxiety
 
-Each prediction includes a probability score and a derived risk level.
+depression
 
-**Technology Stack**
+suicidal
 
-Python 3
+Risk levels are derived from the predicted class and confidence:
 
-PyTorch
+High: suicidal
 
-Hugging Face Transformers (DistilBERT)
+Medium: depression, anxiety, stress
 
-FastAPI
+Low: normal
 
-Uvicorn
+**System Architecture**
 
-HTML, CSS, JavaScript
+The project follows a hybrid inference approach:
 
-Scikit-learn (baseline models)
+Baseline model
 
-**Project Folder Structure**
-MENTAL_HEALTH_SENTIMENT/
+TF-IDF + Logistic Regression
+
+Provides stability and fallback predictions
+
+Deep learning model
+
+RoBERTa (domain-adapted on mental health text)
+
+Used only when confidence is sufficiently high
+
+Rule-based safeguards
+
+Positive-language override
+
+Suicidal intent detection
+
+Confidence thresholds
+
+Fallback logic to prevent unsafe escalation
+
+FastAPI backend
+
+Handles inference, risk assignment, and chatbot responses
+
+Frontend (HTML/CSS/JS)
+
+Simple interface for text input and result display
+
+**Folder Structure**
+Mental-Health-Sentiment-Analysis/
 │
 ├── api/
-│   ├── app.py
+│   ├── app.py                     # FastAPI backend (hybrid inference + chatbot)
 │   └── model/
+│       ├── roberta_classifier/    # Fine-tuned RoBERTa model + tokenizer
+│       ├── baseline_logreg.pkl    # Logistic regression baseline model
+│       └── tfidf_vectorizer.pkl   # TF-IDF vectorizer
 │
 ├── data/
-│   ├── raw/
-│   │   ├── live_reddit_post.csv
-│   │   ├── reddit_analysis.csv
-│   │   └── sentiment_baseline.csv
-│   │
-│   └── processed/
-│       ├── train_baseline.csv
-│       └── val_baseline.csv
-│
-├── frontend/
-│   └── index.html
-│
-├── models/
-│   ├── final_model/
-│   ├── final_model_domain_adapted/
-│   ├── baseline_logreg.pkl
-│   └── tfidf_vectorizer.pkl
+│   ├── raw/                       # Original datasets (not committed)
+│   └── processed/                # Cleaned and merged datasets
 │
 ├── notebooks/
-│   ├── data_preprocessing_01.ipynb
-│   ├── baseline_model_02.ipynb
-│   ├── bert_training_03.ipynb
-│   ├── model_comparison_04.ipynb
-│   ├── bert_domain_adaption_05.ipynb
-│   ├── model_comparison_06.ipynb
-│   └── Final_evaluation_07.ipynb
+│   ├── 01_data_preprocessing.ipynb
+│   ├── 02_baseline_logreg.ipynb
+│   ├── 03_roberta_finetuning.ipynb
+│   ├── 04_domain_adaptation_mlm.ipynb
+│   └── 05_model_evaluation.ipynb
 │
 ├── src/
+│   ├── data_preprocessing.py
+│   └── merge_reddit_corpus.py
+│
+├── frontend/
+│   └── index.html                 # Web UI
 │
 ├── .gitignore
 └── README.md
 
-**Model Details**
 
-Baseline Model: TF-IDF + Logistic Regression
+Large datasets and trained model weights are intentionally excluded from version control.
 
-Deep Learning Model: DistilBERT
+**Model Training Overview**
+**Baseline Model**
 
-Task: Multi-class text classification
+TF-IDF features
 
-Fine-tuning: Domain-specific mental health text
+Logistic Regression classifier
 
-Output: Predicted label with confidence score
+Trained on labeled mental health datasets
 
-**Risk Level Assignment**
+Used as a fallback and stability anchor
 
-Risk levels are determined using rule-based logic combining prediction confidence and predicted class.
+**RoBERTa Model**
 
-**Condition**	                                      **Risk Level**
-Suicidal content with high confidence	                 High
-Mental health class with high confidence	             High
-Mental health class with medium confidence	             Medium
-Normal or low-confidence prediction	                     Low
+Pretrained roberta-base
 
-This design prioritizes safety-aware interpretation.
+Domain adaptation using masked language modeling on Reddit mental health data
 
-**Backend API (FastAPI)**
+Fine-tuned for multi-class mental health classification
+
+Used selectively based on confidence thresholds
+
+**Safety and Rule-Based Logic**
+
+To prevent unsafe or misleading predictions, the system includes:
+
+Positive language guard
+Prevents escalation when text clearly expresses well-being
+
+Suicidal intent detection
+The suicidal label is only allowed when explicit intent phrases are present
+
+Confidence gating
+RoBERTa predictions are accepted only above a minimum confidence threshold
+
+Fallback mechanism
+Automatically switches to the baseline model if the deep model is uncertain or fails
+
+These rules are critical for ethical deployment and realistic behavior in mental health applications.
+
+**Backend API**
 Start the server
-cd api
+
+From the api/ directory:
+
 uvicorn app:app --reload
 
 
@@ -127,7 +164,7 @@ The API runs at:
 http://127.0.0.1:8000
 
 
-API documentation is available at:
+Interactive API documentation:
 
 http://127.0.0.1:8000/docs
 
@@ -136,67 +173,51 @@ http://127.0.0.1:8000/docs
 POST /predict
 
 {
-  "text": "I feel overwhelmed and anxious most days"
+  "text": "I feel overwhelmed and exhausted from work lately."
 }
 
-
-Example response:
-
+**Example Response**
 {
-  "prediction": "anxiety",
-  "confidence": 0.998,
-  "risk_level": "High"
+  "label": "stress",
+  "confidence": 0.63,
+  "risk": "Medium",
+  "model_used": "roberta",
+  "chatbot_response": "It sounds like you’re under a lot of pressure. Even small breaks or slowing down your breathing may help."
 }
 
 **Frontend**
 
-Start the FastAPI backend
+Open frontend/index.html in a browser
 
-Open the following file in a browser:
+Enter text and click Analyze
 
-frontend/index.html
+**Displays:**
 
+Predicted label
 
-The frontend allows users to input text and view predictions, confidence scores, and risk levels.
+Confidence score
 
-**Model Files and Version Control**
+Risk level
 
-Trained model files are large and are excluded from version control using .gitignore.
-
-To run the project locally:
-
-Ensure model files are present inside the models/ directory
-
-Update model paths in api/app.py if required
-
-This follows standard machine learning best practices.
-
-**Evaluation Summary**
-
-Baseline and deep learning models were evaluated
-
-DistilBERT outperformed traditional models on contextual understanding
-
-The system supports real-time inference
-
-Designed with ethical and reproducibility considerations
+Chatbot support message
 
 **Ethical Considerations**
 
-No personally identifiable information is used
+No personally identifiable information is collected
 
-Data is treated as publicly available text
+Uses publicly available datasets
 
-Clear disclaimer included
+Includes safety disclaimers and conservative escalation rules
 
-The system is not intended for clinical or diagnostic use
+Designed for demonstration, not diagnosis
 
 **Author**
 
 Shruti Mishra
-Post Graduate Diploma in Artificial Intelligence | B.Tech Graduate
+B.Tech Graduate | Post Graduate Diploma in Artificial Intelligence
 Email: shrutim318@gmail.com
 
 **License**
 
 This project is intended for educational and research purposes only.
+Not licensed for clinical, diagnostic, or commercial mental health use.
